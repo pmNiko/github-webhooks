@@ -20,7 +20,7 @@ const verify_signature = (req: Request) => {
 };
 
 export class GithubSha256Middleware {
-  static verifySignature = async (
+  static verifySignature = (
     req: Request,
     res: Response,
     next: NextFunction
