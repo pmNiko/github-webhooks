@@ -1,12 +1,19 @@
 import { Request, Response } from "express";
 import { GitHubService } from "../../services/github.service";
+import { DiscordService } from "../../services/discord.service";
 
 export class GithubController {
-  constructor(private readonly githubService = new GitHubService()) {}
+  constructor(
+    private readonly githubService = new GitHubService(),
+    private readonly discordService = new DiscordService()
+  ) {}
 
   webhookHanlder = (req: Request, res: Response) => {
+    console.log("llego");
+
     const githubEvent = req.header("x-github-event") ?? "uknown";
-    // const signature = req.header("x-hub-signature-256") ?? "uknown";
+
+    const signature = req.header("x-hub-signature-256") ?? "uknown";
     const payload = req.body;
 
     let message: string;
@@ -26,6 +33,9 @@ export class GithubController {
 
     console.log({ message });
 
-    res.status(200).json("Acepted");
+    this.discordService
+      .notify(message)
+      .then(() => res.status(202).send("Acepted"))
+      .catch((err) => res.status(500).json({ error: "Internal server error" }));
   };
 }
